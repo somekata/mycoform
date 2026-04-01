@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>真菌検査依頼フォーム｜大阪公立大学医学部附属病院 感染制御部</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;background:#f5f5f3;color:#1a1a1a;font-size:14px;line-height:1.6}
+.container{max-width:860px;margin:0 auto;padding:2rem 1.5rem}
+.header{border-bottom:2px solid #1a3a5c;padding-bottom:1rem;margin-bottom:1.5rem}
+.header h1{font-size:20px;font-weight:700;color:#1a3a5c}
+.header p{font-size:12px;color:#666;margin-top:4px}
+.notice{background:#eaf3fb;border-left:3px solid #1a7cbf;border-radius:4px;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:12px;color:#1a4a6e}
+.meta-section{background:#fff;border:1px solid #ddd;border-radius:8px;padding:1.25rem;margin-bottom:1.5rem}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.cases-container{display:flex;flex-direction:column;gap:1.25rem}
+.case-card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:1.25rem;position:relative}
+.case-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.case-label{font-size:14px;font-weight:700;color:#1a3a5c}
+.remove-btn{font-size:12px;color:#c0392b;cursor:pointer;background:none;border:1px solid #e8b4b0;border-radius:4px;padding:3px 10px}
+.remove-btn:hover{background:#fdf0ee}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid.full{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;color:#666;font-weight:600;letter-spacing:0.03em}
+.field label .req{color:#c0392b;margin-left:2px}
+.field input,.field select,.field textarea{font-size:13px;font-family:inherit;padding:7px 10px;border:1px solid #ccc;border-radius:5px;background:#fafafa;color:#1a1a1a;width:100%;transition:border-color 0.15s}
+.field textarea{resize:vertical;min-height:64px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#1a7cbf;background:#fff}
+.checkgroup{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.checkgroup label{display:flex;align-items:center;gap:5px;font-size:12px;color:#333;cursor:pointer;background:#f5f5f3;border:1px solid #ddd;border-radius:4px;padding:4px 10px}
+.checkgroup label:hover{background:#eaf3fb;border-color:#1a7cbf}
+.checkgroup input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1a3a5c}
+.divider{height:1px;background:#eee;margin:14px 0}
+.section-title{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.actions{display:flex;gap:10px;margin-top:1.5rem;align-items:center;flex-wrap:wrap}
+.btn{padding:9px 22px;border-radius:5px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;transition:all 0.15s}
+.btn-add{background:#fff;border:1px solid #1a3a5c;color:#1a3a5c}
+.btn-add:hover{background:#eaf3fb}
+.btn-csv{background:#1a3a5c;border:1px solid #1a3a5c;color:#fff}
+.btn-csv:hover{background:#15304f}
+.btn-clear{background:#fff;border:1px solid #ccc;color:#888;margin-left:auto}
+.btn-clear:hover{background:#fdf0ee;border-color:#e8b4b0;color:#c0392b}
+.count-badge{font-size:12px;color:#888}
+.redcap-note{background:#fff8e1;border-left:3px solid #f0a500;border-radius:4px;padding:0.75rem 1rem;margin-top:1.5rem;font-size:12px;color:#7a5500}
+@media(max-width:600px){.meta-grid,.form-grid{grid-template-columns:1fr}.actions{flex-direction:column;align-items:stretch}.btn-clear{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>真菌検査依頼フォーム</h1>
+    <p>大阪公立大学医学部附属病院 感染制御部 ／ 大学院医学研究科 細菌学</p>
+  </div>
+
+  <div class="notice">
+    このフォームに入力したデータは<strong>お使いのPC内にのみ保存</strong>されます。サーバーへの送信は行いません。
+    入力完了後にCSVをダウンロードし、REDCapの所定フォームにアップロードしてください。
+  </div>
+
+  <div class="meta-section">
+    <div class="section-title">依頼者情報</div>
+    <div class="meta-grid">
+      <div class="field">
+        <label>依頼施設名<span class="req">*</span></label>
+        <input type="text" id="meta-facility" placeholder="○○病院">
+      </div>
+      <div class="field">
+        <label>担当者名<span class="req">*</span></label>
+        <input type="text" id="meta-name" placeholder="氏名">
+      </div>
+      <div class="field">
+        <label>メールアドレス<span class="req">*</span></label>
+        <input type="email" id="meta-email" placeholder="example@hospital.jp">
+      </div>
+    </div>
+  </div>
+
+  <div id="cases-container" class="cases-container"></div>
+
+  <div class="actions">
+    <button class="btn btn-add" onclick="addCase()">＋ 検体を追加</button>
+    <span class="count-badge" id="count-label">0件</span>
+    <button class="btn btn-csv" onclick="downloadCSV()">CSVダウンロード ↓</button>
+    <button class="btn btn-clear" onclick="clearAll()">クリア</button>
+  </div>
+
+  <div class="redcap-note">
+    CSVダウンロード後、REDCapの依頼フォームに所属・氏名・メールアドレスを入力し、CSVファイルをアップロードしてください。<br>
+    お問い合わせ先：大阪公立大学医学部附属病院 感染制御部　仁木 誠
+  </div>
+</div>
+
+<script>
+const SPECIMEN_TYPES = ["喀痰","気管支洗浄液","血液","尿","髄液","組織（生検）","組織（手術）","FFPE切片","爪","皮膚","その他"];
+const REQUEST_TYPES = ["同定（遺伝子解析）","薬剤感受性検査","同定＋感受性","FFPE検体からの検出","その他"];
+const BASE_DISEASES = ["血液悪性腫瘍","固形腫瘍","臓器移植後","COVID-19感染後","糖尿病","慢性肺疾患","免疫抑制薬使用","その他"];
+
+let caseCount = 0;
+let cases = [];
+
+function addCase() {
+  caseCount++;
+  const id = caseCount;
+  cases.push(id);
+  const container = document.getElementById('cases-container');
+  const div = document.createElement('div');
+  div.className = 'case-card';
+  div.id = `case-${id}`;
+  div.innerHTML = `
+    <div class="case-header">
+      <span class="case-label">検体 ${id}</span>
+      <button class="remove-btn" onclick="removeCase(${id})">削除</button>
+    </div>
+    <div class="section-title">検体・菌株情報</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>検体種別</label>
+        <select id="c${id}-specimen">
+          <option value="">選択してください</option>
+          ${SPECIMEN_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>分離・採取日</label>
+        <input type="date" id="c${id}-date">
+      </div>
+      <div class="field">
+        <label>依頼施設での暫定同定菌種</label>
+        <input type="text" id="c${id}-fungus" placeholder="例：Aspergillus sp.、不明">
+      </div>
+      <div class="field">
+        <label>抗真菌薬使用歴</label>
+        <select id="c${id}-antifungal">
+          <option value="">選択してください</option>
+          <option>なし</option>
+          <option>あり（投与中）</option>
+          <option>あり（投与終了）</option>
+          <option>不明</option>
+        </select>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-title">依頼内容</div>
+    <div class="checkgroup">
+      ${REQUEST_TYPES.map(t => `<label><input type="checkbox" class="c${id}-req" value="${t}"> ${t}</label>`).join('')}
+    </div>
+    <div class="divider"></div>
+    <div class="section-title">患者背景（匿名）</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>年齢層</label>
+        <select id="c${id}-age">
+          <option value="">選択してください</option>
+          <option>0〜19歳</option><option>20〜39歳</option><option>40〜59歳</option>
+          <option>60〜79歳</option><option>80歳以上</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>性別</label>
+        <select id="c${id}-sex">
+          <option value="">選択してください</option>
+          <option>男性</option><option>女性</option><option>不明</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-top:10px">
+      <label>基礎疾患（複数選択可）</label>
+      <div class="checkgroup">
+        ${BASE_DISEASES.map(d => `<label><input type="checkbox" class="c${id}-base" value="${d}"> ${d}</label>`).join('')}
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-title">備考・ファイル名</div>
+    <div class="form-grid full">
+      <div class="field">
+        <label>備考・添付ファイル名（顕微鏡写真・コロニー写真等）</label>
+        <textarea id="c${id}-note" placeholder="例：colony_photo_20250601.jpg　/ 特記事項など"></textarea>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+  updateCount();
+}
+
+function removeCase(id) {
+  const el = document.getElementById(`case-${id}`);
+  if (el) el.remove();
+  cases = cases.filter(c => c !== id);
+  updateCount();
+}
+
+function updateCount() {
+  const active = cases.filter(id => document.getElementById(`case-${id}`)).length;
+  document.getElementById('count-label').textContent = `${active}件入力中`;
+}
+
+function getChecked(className) {
+  return Array.from(document.querySelectorAll(`.${className}:checked`)).map(e => e.value).join('／');
+}
+
+function downloadCSV() {
+  const facility = document.getElementById('meta-facility').value.trim();
+  const name = document.getElementById('meta-name').value.trim();
+  const email = document.getElementById('meta-email').value.trim();
+
+  if (!facility || !name || !email) {
+    alert('依頼者情報（施設名・担当者名・メールアドレス）をすべて入力してください。');
+    return;
+  }
+
+  const activeCases = cases.filter(id => document.getElementById(`case-${id}`));
+  if (activeCases.length === 0) {
+    alert('検体情報を1件以上入力してください。');
+    return;
+  }
+
+  const headers = [
+    '依頼施設名','担当者名','メールアドレス','検体番号',
+    '検体種別','分離採取日','暫定同定菌種','抗真菌薬使用歴',
+    '依頼内容','年齢層','性別','基礎疾患','備考・ファイル名'
+  ];
+
+  const rows = [headers];
+  activeCases.forEach((id, i) => {
+    rows.push([
+      facility, name, email, i + 1,
+      document.getElementById(`c${id}-specimen`)?.value || '',
+      document.getElementById(`c${id}-date`)?.value || '',
+      document.getElementById(`c${id}-fungus`)?.value || '',
+      document.getElementById(`c${id}-antifungal`)?.value || '',
+      getChecked(`c${id}-req`),
+      document.getElementById(`c${id}-age`)?.value || '',
+      document.getElementById(`c${id}-sex`)?.value || '',
+      getChecked(`c${id}-base`),
+      document.getElementById(`c${id}-note`)?.value || ''
+    ]);
+  });
+
+  const bom = '\uFEFF';
+  const csv = bom + rows.map(r =>
+    r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+  ).join('\r\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  a.download = `fungal_request_${facility}_${today}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearAll() {
+  if (!confirm('入力内容をすべてクリアしますか？')) return;
+  document.getElementById('cases-container').innerHTML = '';
+  document.getElementById('meta-facility').value = '';
+  document.getElementById('meta-name').value = '';
+  document.getElementById('meta-email').value = '';
+  cases = [];
+  caseCount = 0;
+  updateCount();
+}
+
+addCase();
+</script>
+</body>
+</html>
